@@ -4,7 +4,7 @@ install.packages('scales')
 library(tidyverse)
 library(lubridate)
 
-data <- read.csv('C:/Users/aleja/Desktop/Global_Mobility_Report_google.csv') %>%
+data <- read.csv('Global Mobility Mexico/Global_Mobility_Report_google.csv') %>%
     filter(country_region == 'Mexico') %>%
     mutate(date = dmy(date))
 
@@ -34,4 +34,4 @@ ggplot() +
           axis.ticks = element_blank()) +
     xlab('\nFecha') +
     ylab('Retail and recreation percent change from baseline\n') +
-    labs(color = 'Título de la leyenda')
+    labs(color = 'T?tulo de la leyenda')

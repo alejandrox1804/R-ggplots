@@ -9,15 +9,33 @@ colores_1 <- c('#008080','#002456')
 
 colores_2 <- c('#31f48e','#07aa7b','#0bbeff','#0086ff','#01437d','#ff0040')
 
-dat %>% # Dataframe con una variable de fecha (date), una variable continua (y) y una variable categórica (cat_var)
-ggplot(aes(x = date,y = y, fill = cat_var,color = cat_var)) +
+dat <- tibble(date = c(seq(date('2014-01-01'),date('2019-12-31'),1))) %>%
+    mutate(cat_1 = 10,
+           cat_2 = 1)
+
+for (i in 2:nrow(dat)) {
+
+    dat$cat_1[i] <- (1 + runif(1,-0.0050,0.0055))*dat$cat_1[i - 1]
+    dat$cat_2[i] <- (1 + runif(1,-0.0060,0.0060))*dat$cat_2[i - 1]
+}
+
+dat %>%
+    gather('color','y',-date) %>%
+    mutate(week = week(date),
+           year = year(date)) %>%
+    group_by(week,year,color) %>%
+    summarise(y = mean(y)) %>% ungroup() %>%
+    mutate(date = date('2019-01-01') + (week - 1)*7) %>%
+    group_by(color) %>%
+    mutate(delta = y/lag(y) - 1) %>%
+    filter(year == 2019,week <= 15) %>%
+    ggplot(aes(x = date,y = delta, fill = color,color = color)) +
     geom_col(position = 'dodge',width = 4, alpha = 0.25) +
     scale_x_date(date_labels = '%d - %B',
-                 breaks = seq(date('2020-01-01'),date('2020-04-08'),7)) +
-    scale_y_continuous(breaks = seq(-0.08,0.14,0.02),
-                       labels = scales::percent_format(accuracy = 1)) +
-    scale_fill_manual(values = colores_1,labels = c('label 1',...'label n')) +
-    scale_color_manual(values = colores_1,labels = c('label 1',...'label n')) +
+                 breaks = seq(date('2019-01-01'),date('2019-04-09'),7)) +
+    scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+    scale_fill_manual(values = colores_1) +
+    scale_color_manual(values = colores_1) +
     theme(legend.position = 'bottom',
           panel.background = element_blank(),
           panel.grid.major.y = element_line(color = '#153232',size = 0.1,linetype = 'dotted'),
@@ -30,5 +48,5 @@ ggplot(aes(x = date,y = y, fill = cat_var,color = cat_var)) +
           text = element_text(family = 'Arial'),
           plot.title = element_text(hjust = 0.5,face = 'bold'),
           legend.title = element_blank()) +
-    ggtitle('Título') +
-    xlab('Date lab') + ylab('Eje y')
+    ggtitle('TÃ­tulo') +
+    xlab('\nDate lab') + ylab('Eje y\n')

@@ -9,8 +9,21 @@ colores_1 <- c('#008080','#002456')
 
 colores_2 <- c('#31f48e','#07aa7b','#0bbeff','#0086ff','#01437d','#ff0040')
 
-dat %>% # Dataframe con 3 variables categóricas (x,color y var_cat --facet_wrap) y una continua (y)
-ggplot(aes(x = x,y = y,color = color)) +
+dat <- tibble(date = c(seq(date('2014-01-01'),date('2019-12-31'),1))) %>%
+    mutate(cat_1 = 10,
+           cat_2 = 12)
+
+for (i in 2:nrow(dat)) {
+
+    dat$cat_1[i] <- (1 + runif(1,-0.0025,0.0035))*dat$cat_1[i - 1]
+    dat$cat_2[i] <- (1 + runif(1,-0.0025,0.0035))*dat$cat_2[i - 1]
+}
+
+dat %>%
+    gather('color','y',-date) %>%
+    group_by(month(date),year(date),color) %>%
+    summarise(y = mean(y)) %>%
+    ggplot(aes(x = `month(date)`,y = y,color = color)) +
     geom_line() + geom_point() +
     scale_x_continuous(breaks = seq(1,12,1),
                        labels = str_sub(c('Enero','Febrero','Marzo','Abril','Mayo','Junio',
@@ -28,6 +41,6 @@ ggplot(aes(x = x,y = y,color = color)) +
           legend.title = element_blank(),
           legend.text = element_text(face = 'bold'),
           legend.position = 'bottom') +
-    ylab('Eje y') +
-    ggtitle('Título') +
-    facet_wrap(~var_cat,scales = 'free')
+    ylab('Eje y\n') +
+    ggtitle('TÃ­tulo') +
+    facet_wrap(~`year(date)`,scales = 'free')
